@@ -57,10 +57,10 @@ class WheelSingle:
             self.pwm_a.ChangeDutyCycle(abs(speed * self.ratio))
             self.pwm_b.ChangeDutyCycle(0)
 
-wheel_1 = WheelSingle(PWM2, PWM4, 1)
-wheel_2 = WheelSingle(PWM6, PWM8, 1)
-wheel_3 = WheelSingle(PWM3, PWM5, 1)
-wheel_4 = WheelSingle(PWM7, PWM9, 1)
+wheel_1 = WheelSingle(PWM2, PWM4, 1) # Left Front
+wheel_2 = WheelSingle(PWM6, PWM8, 1) # Left Rear
+wheel_3 = WheelSingle(PWM3, PWM5, 1) # Right Rear
+wheel_4 = WheelSingle(PWM7, PWM9, 1) # Right Front
 
 def callback(data):
     rospy.loginfo(rospy.get_caller_id() + ' Received Linear: x=%.2f, y=%.2f, z=%.2f | Angular: x=%.2f, y=%.2f, z=%.2f', data.linear.x, data.linear.y, data.linear.z, data.angular.x, data.angular.y, data.angular.z)
@@ -72,13 +72,18 @@ def callback(data):
     elif data.linear.y != 0:
         wheel_1.rotate(data.linear.y)
         wheel_2.rotate(-1 * data.linear.y)
-        wheel_3.rotate(-1 * data.linear.y)
-        wheel_4.rotate(data.linear.y)
+        wheel_3.rotate(data.linear.y)
+        wheel_4.rotate(-1 * data.linear.y)
     elif data.angular.z != 0:
         wheel_1.rotate(-1 * data.angular.z)
         wheel_2.rotate(-1 * data.angular.z)
         wheel_3.rotate(data.angular.z)
         wheel_4.rotate(data.angular.z)
+    else:
+        wheel_1.rotate(0)
+        wheel_2.rotate(0)
+        wheel_3.rotate(0)
+        wheel_4.rotate(0)
  
 def wheel_control():
     rospy.init_node('wheel_control')
@@ -89,6 +94,8 @@ def wheel_control():
     wheel_2.setup()
     wheel_3.setup()
     wheel_4.setup()
+
+    rospy.loginfo(rospy.get_caller_id() + " Setup Complete")
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
