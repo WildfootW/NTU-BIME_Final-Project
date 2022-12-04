@@ -8,14 +8,15 @@
 
 import rospy
 from std_msgs.msg import String
+from geometry_msgs.msg import Twist
 
 def callback(data):
-    rospy.loginfo(rospy.get_caller_id() + 'I heard %s', data.data)
+    rospy.loginfo(rospy.get_caller_id() + ' Received Linear: x=%.2f, y=%.2f, z=%.2f | Angular: x=%.2f, y=%.2f, z=%.2f', data.linear.x, data.linear.y, data.linear.z, data.angular.x, data.angular.y, data.angular.z)
 
 def wheel_control():
     rospy.init_node('wheel_control')
 
-    rospy.Subscriber('chatter', String, callback)
+    rospy.Subscriber('cmd_vel', Twist, callback)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
