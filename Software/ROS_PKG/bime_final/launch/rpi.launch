@@ -1,0 +1,6 @@
+<launch>
+
+  <node pkg="bime_final" name="wheel_control" type="wheel_control.py" output="screen">
+  </node>
+
+</launch>
