@@ -1,14 +1,11 @@
-
 # Python code for Multiple Color Detection
-  
-  
 import numpy as np
 import cv2
   
   
 # Capturing video through webcam
 webcam = cv2.VideoCapture(0)
-  
+
 # Start a while loop
 while(1):
       
