@@ -4,6 +4,7 @@
 #
 # Copyleft (ɔ) 2022 wildfootw <wildfootw@wildfoo.tw>
 #
+# Only Demo how to Convert ROS Image to cv::Mat
 # Copy from https://wiki.ros.org/cv_bridge/Tutorials/ConvertingBetweenROSImagesAndOpenCVImagesPython
 # Modified for Noetic
 #
