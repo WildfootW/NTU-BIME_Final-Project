@@ -14,6 +14,7 @@ import rospy
 
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import TwistStamped
+from std_msgs.msg import Bool
 
 import sys
 from select import select
@@ -36,13 +37,13 @@ For Holonomic mode (strafing), hold down the shift key:
    j    k    l    |   J    K    L    |
    m    ,    .    |   M    <    >    |
 --------------------------------------
-t/b : up (+z) / down (-z)
-
-anything else : stop
+y/n : up (+z) / down (-z)
 
 e/r : increase/decrease only linear speed 5
 d/f : increase/decrease max speeds 5
 c/v : increase/decrease only angular speed 5
+
+t/b : rise / drop ball holder
 
 CTRL-C to quit
 """
@@ -67,8 +68,8 @@ moveBindings = {
         'M':(-1, 1, 0, 0),
         '<':(-1, 0, 0, 0),
         '>':(-1,-1, 0, 0),
-        't':( 0, 0, 1, 0),
-        'b':( 0, 0,-1, 0),
+        'y':( 0, 0, 1, 0),
+        'n':( 0, 0,-1, 0),
     }
 
 speedBindings={
@@ -78,6 +79,11 @@ speedBindings={
         'e':( -5,  0),
         'v':(  0,  5),
         'c':(  0, -5),
+    }
+
+ballHolderBindings = {
+        't': True,
+        'b': False,
     }
 
 class PublishThreadCmdVel(threading.Thread):
@@ -198,6 +204,7 @@ if __name__=="__main__":
         TwistMsg = TwistStamped
 
     pub_thread_vel = PublishThreadCmdVel(repeat)
+    pub_ball_holder = rospy.Publisher('cmd_ball_holder', Bool, queue_size = 1)
 
     x = 0
     y = 0
@@ -235,6 +242,14 @@ if __name__=="__main__":
 
                 pub_thread_vel.update(x, y, z, th, speed, turn)
                 rospy.loginfo("currently: speed %.3f\tturn %.3f ", speed, turn)
+                status = status + 1
+            elif key in ballHolderBindings.keys():
+                rise_ball_holder = ballHolderBindings[key]
+                pub_ball_holder.publish(rise_ball_holder)
+                if rise_ball_holder:
+                    rospy.loginfo(rospy.get_caller_id() + " Rise Ball Holder")
+                else:
+                    rospy.loginfo(rospy.get_caller_id() + " Drop Ball Holder")
                 status = status + 1
             else:
                 # Skip updating cmd_vel if key timeout and robot already stopped.
