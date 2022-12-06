@@ -163,6 +163,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/image_converter.py
   scripts/on_screen_display.py
+  scripts/cmd_keyboard.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

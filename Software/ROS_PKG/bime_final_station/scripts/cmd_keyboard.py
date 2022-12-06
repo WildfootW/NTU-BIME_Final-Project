@@ -1,10 +1,15 @@
 #!/usr/bin/env python
-
-from __future__ import print_function
+# -*- coding: utf-8 -*-
+# vim:fenc=utf-8
+#
+# Copyleft (ɔ) 2022 wildfootw <wildfootw@wildfoo.tw>
+#
+# Copy from https://github.com/ros-teleop/teleop_twist_keyboard/blob/master/teleop_twist_keyboard.py
+# Distributed under terms of the BSD license.
 
 import threading
 
-import roslib; roslib.load_manifest('teleop_twist_keyboard')
+#import roslib; roslib.load_manifest('teleop_twist_keyboard')
 import rospy
 
 from geometry_msgs.msg import Twist
@@ -20,67 +25,64 @@ else:
     import tty
 
 
-TwistMsg = Twist
+TwistMsg = Twist # Default
 
 msg = """
-Reading from the keyboard  and Publishing to Twist!
----------------------------
-Moving around:
-   u    i    o
-   j    k    l
-   m    ,    .
-
+Reading from the keyboard and Publishing to Twist!
 For Holonomic mode (strafing), hold down the shift key:
----------------------------
-   U    I    O
-   J    K    L
-   M    <    >
-
-t : up (+z)
-b : down (-z)
+--------------------------------------
+ Moving around:   | Holonomic:       |
+   u    i    o    |   U    I    O    |
+   j    k    l    |   J    K    L    |
+   m    ,    .    |   M    <    >    |
+--------------------------------------
+t/b : up (+z) / down (-z)
 
 anything else : stop
 
-q/z : increase/decrease max speeds by 10%
-w/x : increase/decrease only linear speed by 10%
-e/c : increase/decrease only angular speed by 10%
+e/r : increase/decrease only linear speed 5
+d/f : increase/decrease max speeds 5
+c/v : increase/decrease only angular speed 5
 
 CTRL-C to quit
 """
 
+# x, y, z, th
 moveBindings = {
-        'i':(1,0,0,0),
-        'o':(1,0,0,-1),
-        'j':(0,0,0,1),
-        'l':(0,0,0,-1),
-        'u':(1,0,0,1),
-        ',':(-1,0,0,0),
-        '.':(-1,0,0,1),
-        'm':(-1,0,0,-1),
-        'O':(1,-1,0,0),
-        'I':(1,0,0,0),
-        'J':(0,1,0,0),
-        'L':(0,-1,0,0),
-        'U':(1,1,0,0),
-        '<':(-1,0,0,0),
-        '>':(-1,-1,0,0),
-        'M':(-1,1,0,0),
-        't':(0,0,1,0),
-        'b':(0,0,-1,0),
+        'u':( 1, 0, 0, 1),
+        'i':( 1, 0, 0, 0),
+        'o':( 1, 0, 0,-1),
+        'j':( 0, 0, 0, 1),
+        'k':( 0, 0, 0, 0),
+        'l':( 0, 0, 0,-1),
+        'm':(-1, 0, 0,-1),
+        ',':(-1, 0, 0, 0),
+        '.':(-1, 0, 0, 1),
+        'U':( 1, 1, 0, 0),
+        'I':( 1, 0, 0, 0),
+        'O':( 1,-1, 0, 0),
+        'J':( 0, 1, 0, 0),
+        'K':( 0, 0, 0, 0),
+        'L':( 0,-1, 0, 0),
+        'M':(-1, 1, 0, 0),
+        '<':(-1, 0, 0, 0),
+        '>':(-1,-1, 0, 0),
+        't':( 0, 0, 1, 0),
+        'b':( 0, 0,-1, 0),
     }
 
 speedBindings={
-        'q':(1.1,1.1),
-        'z':(.9,.9),
-        'w':(1.1,1),
-        'x':(.9,1),
-        'e':(1,1.1),
-        'c':(1,.9),
+        'f':(  5,  5),
+        'd':( -5, -5),
+        'r':(  5,  0),
+        'e':( -5,  0),
+        'v':(  0,  5),
+        'c':(  0, -5),
     }
 
-class PublishThread(threading.Thread):
+class PublishThreadCmdVel(threading.Thread):
     def __init__(self, rate):
-        super(PublishThread, self).__init__()
+        super(PublishThreadCmdVel, self).__init__() # super() is for access methods of the base class
         self.publisher = rospy.Publisher('cmd_vel', TwistMsg, queue_size = 1)
         self.x = 0.0
         self.y = 0.0
@@ -99,17 +101,6 @@ class PublishThread(threading.Thread):
             self.timeout = None
 
         self.start()
-
-    def wait_for_subscribers(self):
-        i = 0
-        while not rospy.is_shutdown() and self.publisher.get_num_connections() == 0:
-            if i == 4:
-                print("Waiting for subscriber to connect to {}".format(self.publisher.name))
-            rospy.sleep(0.5)
-            i += 1
-            i = i % 5
-        if rospy.is_shutdown():
-            raise Exception("Got shutdown request before subscribers connected")
 
     def update(self, x, y, z, th, speed, turn):
         self.condition.acquire()
@@ -192,55 +183,61 @@ def restoreTerminalSettings(old_settings):
         return
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
 
-def vels(speed, turn):
-    return "currently:\tspeed %s\tturn %s " % (speed,turn)
-
 if __name__=="__main__":
     settings = saveTerminalSettings()
 
-    rospy.init_node('teleop_twist_keyboard')
+    rospy.init_node('cmd_keyboard')
 
-    speed = rospy.get_param("~speed", 0.5)
-    turn = rospy.get_param("~turn", 1.0)
+    speed = rospy.get_param("~speed", 10.0)
+    turn = rospy.get_param("~turn", 10.0)
     repeat = rospy.get_param("~repeat_rate", 0.0)
-    key_timeout = rospy.get_param("~key_timeout", 0.5)
+    key_timeout = rospy.get_param("~key_timeout", None) # None for disable timeout / "0" indicate immediately timeout
     stamped = rospy.get_param("~stamped", False)
     twist_frame = rospy.get_param("~frame_id", '')
     if stamped:
         TwistMsg = TwistStamped
 
-    pub_thread = PublishThread(repeat)
+    pub_thread_vel = PublishThreadCmdVel(repeat)
 
     x = 0
     y = 0
     z = 0
     th = 0
-    status = 0
+    status = 0 # for resent the message
 
     try:
-        pub_thread.wait_for_subscribers()
-        pub_thread.update(x, y, z, th, speed, turn)
+        pub_thread_vel.update(x, y, z, th, speed, turn)
 
-        print(msg)
-        print(vels(speed,turn))
-        while(1):
+        rospy.loginfo(msg)
+        rospy.loginfo("currently: speed %.3f\tturn %.3f ", speed, turn)
+        while True:
             key = getKey(settings, key_timeout)
-            if key in moveBindings.keys():
-                x = moveBindings[key][0]
-                y = moveBindings[key][1]
-                z = moveBindings[key][2]
-                th = moveBindings[key][3]
-            elif key in speedBindings.keys():
-                speed = speed * speedBindings[key][0]
-                turn = turn * speedBindings[key][1]
 
-                print(vels(speed,turn))
-                if (status == 14):
-                    print(msg)
-                status = (status + 1) % 15
+            if status == 10:
+                rospy.loginfo(msg)
+                status = 0
+
+            if key in moveBindings.keys():
+                x  = moveBindings[key][0]
+                y  = moveBindings[key][1]
+                z  = moveBindings[key][2]
+                th = moveBindings[key][3]
+
+                pub_thread_vel.update(x, y, z, th, speed, turn)
+            elif key in speedBindings.keys():
+                speed = speed + speedBindings[key][0]
+                turn  = turn  + speedBindings[key][1]
+
+                speed = min(speed, 100)
+                turn  = min(turn , 100)
+                speed = max(speed,   0)
+                turn  = max(turn ,   0)
+
+                pub_thread_vel.update(x, y, z, th, speed, turn)
+                rospy.loginfo("currently: speed %.3f\tturn %.3f ", speed, turn)
+                status = status + 1
             else:
-                # Skip updating cmd_vel if key timeout and robot already
-                # stopped.
+                # Skip updating cmd_vel if key timeout and robot already stopped.
                 if key == '' and x == 0 and y == 0 and z == 0 and th == 0:
                     continue
                 x = 0
@@ -250,11 +247,10 @@ if __name__=="__main__":
                 if (key == '\x03'):
                     break
 
-            pub_thread.update(x, y, z, th, speed, turn)
 
     except Exception as e:
-        print(e)
+        rospy.loginfo(e)
 
     finally:
-        pub_thread.stop()
+        pub_thread_vel.stop()
         restoreTerminalSettings(settings)
