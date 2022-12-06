@@ -1,4 +1,10 @@
-# ROS PKG - bime_final
+# ROS PKG - bime_final_rpi
+## Cheatsheet
+* Compile this package on RPi
+```
+sudo src/catkin/bin/catkin_make_isolated --only-pkg-with-deps bime_final --merge -j4 -DPYTHON_EXECUTABLE=/usr/bin/python3
+```
+
 ## Basic Information
 ### Dependence
 * [USB_CAM](https://index.ros.org/p/usb_cam/github-ros-drivers-usb_cam/)
@@ -9,3 +15,5 @@
 
 ## Reference
 [Raspberry Pi - PWM](https://sourceforge.net/p/raspberry-gpio-python/wiki/PWM/)
+
+

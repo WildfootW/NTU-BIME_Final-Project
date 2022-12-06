@@ -1,4 +1,7 @@
-### Cheatsheet
-```
-sudo src/catkin/bin/catkin_make_isolated --only-pkg-with-deps bime_final --merge -j4 -DPYTHON_EXECUTABLE=/usr/bin/python3
-```
+# BIME Final Project - ROS Packages
+## Basic Information
+* bime_final_rpi
+    * `roslaunch bime_final_rpi rpi.launch`
+* bime_final_station
+    * `roslaunch bime_final_station controller.launch`
+    * `roslaunch bime_final_station monitor.launch`
