@@ -162,7 +162,7 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   scripts/image_converter.py
-  scripts/color_detector.py
+  scripts/on_screen_display.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

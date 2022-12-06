@@ -1,0 +1,6 @@
+<launch>
+
+  <node pkg="bime_final_station" name="on_screen_display" type="on_screen_display.py" output="screen">
+  </node>
+
+</launch>

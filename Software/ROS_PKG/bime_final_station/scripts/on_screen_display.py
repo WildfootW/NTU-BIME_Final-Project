@@ -14,8 +14,7 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
-def color_detector(data):
-    imageFrame = data
+def detect_color(imageFrame):
   
     # Convert the imageFrame in 
     # BGR(RGB color space) to 
@@ -116,7 +115,10 @@ def color_detector(data):
             cv2.putText(imageFrame, "Blue Colour, Target: Yellow", (x, y),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0, (255, 0, 0))
-    
+
+    return imageFrame
+
+def text_information(imageFrame):
     DHT11 = 100
     left_pedding = 12
     right_pedding = 12
@@ -129,42 +131,44 @@ def color_detector(data):
     cv2.putText(imageFrame ,"R Distance: " + str(right_pedding) , (100,150),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0, (255, 255, 255),5)
+    return imageFrame
 
-    # Program Termination
-    cv2.imshow("Multiple Color Detection in Real-TIme", imageFrame)
+
+cv_bridge_instance = CvBridge()
+#@static_vars(cv_bridge_instance = CvBridgeError())
+def image_to_cv2(data):
+    try:
+        cv_image = cv_bridge_instance.imgmsg_to_cv2(data, "bgr8") # Return cv::Mat
+    except CvBridgeError as e:
+        rospy.logerr(e)
+
+    (rows, cols, channels) = cv_image.shape
+    if cols > 60 and rows > 60 :
+        cv2.circle(cv_image, (50,50), 10, 255)
+
+    # Display the Image Directly
+    #cv2.imshow("ImageConverter cv2 display", cv_image) 
+    #cv2.waitKey(3)
+
+    return cv_image
+
+def callback(frame):
+    frame = image_to_cv2(frame)
+    frame = detect_color(frame)
+    frame = text_information(frame)
+
+    cv2.imshow("On Screen Display", frame)
     cv2.waitKey(3)
 
-class ColorDetector:
-    def __init__(self):
-        self.bridge = CvBridge()
-        self.image_sub = rospy.Subscriber("/usb_cam/image_raw", Image, self.callback)
-
-    def callback(self, data):
-        try:
-            cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8") # Return cv::Mat
-        except CvBridgeError as e:
-            rospy.logerr(e)
-
-        (rows, cols, channels) = cv_image.shape
-        if cols > 60 and rows > 60 :
-            cv2.circle(cv_image, (50,50), 10, 255)
-
-        # Display the Image Directly
-        #cv2.imshow("ImageConverter cv2 display", cv_image) 
-        #cv2.waitKey(3)
-
-        color_detector(cv_image)
-
-def image_convert_n_color_detect():
-    rospy.init_node('color_detector', anonymous=True)
-    ic = ColorDetector()
+def on_screen_display():
+    rospy.init_node('on_screen_display', anonymous=True)
+    rospy.Subscriber("/usb_cam/image_raw", Image, callback)
     rospy.loginfo(rospy.get_caller_id() + " Setup Complete")
 
     rospy.spin()
-
     rospy.loginfo(rospy.get_caller_id() + " Spin END")
 
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    image_convert_n_color_detect()
+    on_screen_display()
