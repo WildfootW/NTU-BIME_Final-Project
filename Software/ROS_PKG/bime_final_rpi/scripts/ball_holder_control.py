@@ -28,27 +28,21 @@ class ServoMotor:
 
     def setup(self):
         GPIO.setup(self.pin, GPIO.OUT)
-        self.pwm = GPIO.PWM(self.pin, 100) # 100 Hz
+        self.pwm = GPIO.PWM(self.pin, 50) # 50 Hz
         self.pwm.start(0)
 
-    def rotate(self, angle):
-        pwm_value = angle / 180
-
-        # PWM Duty Cycle 0~100, set speed maximum to 100
-        pwm_value = min(pwm_value, 100)
-        pwm_value = max(pwm_value,   0)
-
+    def rotate(self,  pwm_value):
         self.pwm.ChangeDutyCycle(pwm_value)
-        rospy.loginfo(rospy.get_caller_id() + ' Angle: %d, Set PWM to %.2f', angle, pwm_value)
+        rospy.loginfo(rospy.get_caller_id() + ' Set PWM to %.1f', pwm_value)
 
 ball_holder = ServoMotor(PWM0)
 
 def callback(data):
     rospy.loginfo(rospy.get_caller_id() + ' Received CMD')
     if data.data:
-        ball_holder.rotate(10)
+        ball_holder.rotate(7)
     else:
-        ball_holder.rotate(170)
+        ball_holder.rotate(11)
  
 def ball_holder_control():
     rospy.init_node('ball_holder')
