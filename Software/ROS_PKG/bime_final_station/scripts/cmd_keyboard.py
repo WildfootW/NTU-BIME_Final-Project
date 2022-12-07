@@ -39,9 +39,9 @@ For Holonomic mode (strafing), hold down the shift key:
 --------------------------------------
 y/n : up (+z) / down (-z)
 
-e/r : increase/decrease only linear speed 5
-d/f : increase/decrease max speeds 5
-c/v : increase/decrease only angular speed 5
+e/r : decrease/increase only linear speed 5
+d/f : decrease/increase max speeds 5
+c/v : decrease/increase only angular speed 5
 
 t/b : rise / drop ball holder
 

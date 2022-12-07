@@ -1,6 +1,6 @@
 <launch>
 
-  <node pkg="teleop_twist_keyboard" name="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen">
+  <node pkg="bime_final_station" name="cmd_keyboard" type="cmd_keyboard.py" output="screen">
   </node>
 
 </launch>
