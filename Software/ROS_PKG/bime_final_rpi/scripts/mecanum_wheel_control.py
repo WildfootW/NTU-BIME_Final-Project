@@ -85,8 +85,8 @@ def callback(data):
         wheel_3.rotate(0)
         wheel_4.rotate(0)
  
-def wheel_control():
-    rospy.init_node('wheel_control')
+def mecanum_wheel_control():
+    rospy.init_node('mecanum_wheel')
 
     rospy.Subscriber('cmd_vel', Twist, callback)
 
@@ -104,4 +104,4 @@ def wheel_control():
     GPIO.cleanup()
 
 if __name__ == '__main__':
-    wheel_control()
+    mecanum_wheel_control()

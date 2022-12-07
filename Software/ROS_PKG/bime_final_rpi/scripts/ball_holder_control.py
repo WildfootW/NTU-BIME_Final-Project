@@ -51,7 +51,7 @@ def callback(data):
         ball_holder.rotate(170)
  
 def ball_holder_control():
-    rospy.init_node('ball_holder_control')
+    rospy.init_node('ball_holder')
 
     rospy.Subscriber('cmd_ball_holder', Bool, callback)
 

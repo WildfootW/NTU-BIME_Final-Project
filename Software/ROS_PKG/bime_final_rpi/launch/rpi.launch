@@ -1,9 +1,15 @@
 <launch>
 
-  <node pkg="bime_final_rpi" name="wheel_control" type="wheel_control.py" output="screen">
+  <node pkg="bime_final_rpi" name="wheel" type="mecanum_wheel_control.py" output="screen">
   </node>
 
-  <node pkg="bime_final_rpi" name="ball_holder_control" type="ball_holder_control.py" output="screen">
+  <node pkg="bime_final_rpi" name="ball_holder" type="ball_holder_control.py" output="screen">
+  </node>
+
+  <node pkg="bime_final_rpi" name="led" type="led_control.py" output="screen">
+  </node>
+
+  <node pkg="bime_final_rpi" name="buzzer" type="buzzer_control.py" output="screen">
   </node>
 
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
