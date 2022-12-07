@@ -15,10 +15,7 @@ import time
 # GPIO Mode (Board / BCM)
 GPIO.setmode(GPIO.BOARD)
 
-# set GPIO Pins
-TRIGGER_PIN = 7
-ECHO_PIN = 11
- 
+
 class HC_SR04:
     """A simple class for HC-SR04"""
     def __init__(self, trigger, echo):
@@ -26,7 +23,6 @@ class HC_SR04:
         self.echo_pin    = echo
 
     def setup(self):
-        GPIO.setup(self.pin, GPIO.OUT)
         GPIO.setup(self.trigger_pin, GPIO.OUT)
         GPIO.setup(self.echo_pin, GPIO.IN)
  
@@ -57,25 +53,30 @@ class HC_SR04:
         return distance
  
 def ultrasonic_distance_sense():
+    trigger_pin = rospy.get_param("~trigger_pin", 7)
+    echo_pin    = rospy.get_param("~echo_pin",   11)
+ 
+    sensor = HC_SR04(trigger_pin, echo_pin)
+
     rospy.init_node('sonic_distance', anonymous = True)
 
-    sensor = HC_SR04(TRIGGER_PIN, ECHO_PIN)
     pub_buzzer = rospy.Publisher('cmd_buzzer', Bool, queue_size = 1)
 #    pub_distance = rospy.Publisher('distance', Bool, queue_size = 1)
 
-    rospy.loginfo(rospy.get_caller_id() + " Measured Distance = %.1f cm", distance)
-    led.setup()
+    sensor.setup()
+    rate = rospy.Rate(2) # 2 Hz
+    rospy.loginfo(rospy.get_caller_id() + " Setup Trigger Pin: %d, Echo Pin: %d.", trigger_pin, echo_pin)
 
-    rospy.loginfo(rospy.get_caller_id() + " Setup Complete")
-
-    # spin() simply keeps python from exiting until this node is stopped
-    rospy.spin()
-
-    rospy.loginfo(rospy.get_caller_id() + " Spin END")
-    GPIO.cleanup()
+    while not rospy.is_shutdown():
+        distance = sensor.measure_distance()
+        rospy.loginfo(rospy.get_caller_id() + " Measured Distance = %.1f cm", distance)
+        if distance < 10:
+            pub_buzzer.publish(True)
+        rate.sleep()
 
 if __name__ == '__main__':
-    ultrasonic_distance_sense()
-
- 
-
+    try:
+        ultrasonic_distance_sense()
+    except rospy.ROSInterruptException:
+        GPIO.cleanup()
+        rospy.loginfo(rospy.get_caller_id() + " END")
