@@ -1,6 +1,7 @@
 #Libraries
 import RPi.GPIO as GPIO
 import time
+import signal
  
 #GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BOARD)
@@ -40,12 +41,21 @@ def distance():
     distance = (TimeElapsed * 34300) / 2
  
     return distance
+
+def handler(signum, frame):
+    raise TimeoutError()
  
 if __name__ == '__main__':
     try:
         while True:
-            dist = distance()
-            print ("Measured Distance = %.1f cm" % dist)
+            try:
+                signal.signal(signal.SIGALRM, handler)
+                signal.alarm(2)
+                dist = distance()
+                signal.alarm(0)
+                print ("Measured Distance = %.1f cm" % dist)
+            except TimeoutError:
+                print("Forever is over!")
             time.sleep(1)
  
         # Reset by pressing CTRL + C
