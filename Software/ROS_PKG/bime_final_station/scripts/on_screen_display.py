@@ -13,6 +13,7 @@ import numpy as np
 from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
+from std_msgs.msg import Float32
 
 def detect_color(imageFrame):
   
@@ -118,23 +119,23 @@ def detect_color(imageFrame):
 
     return imageFrame
 
-def text_information(imageFrame):
-    DHT11 = 100
-    left_pedding = 12
-    right_pedding = 12
-    cv2.putText(imageFrame ,"Temperature: " + str(DHT11) , (100,50),
+def text_information(imageFrame, temperature):
+    cv2.putText(imageFrame ,"Temperature: " + str(temperature) , (100,50),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0, (255, 255, 255),5)
-    cv2.putText(imageFrame ,"L Distance: " + str(left_pedding) , (100,100),
+    cv2.putText(imageFrame ,"L Dist: " + f'{left_pedding:.2f}', (100,100),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0, (255, 255, 255),5)
-    cv2.putText(imageFrame ,"R Distance: " + str(right_pedding) , (100,150),
+    cv2.putText(imageFrame ,"R Dist: " + f'{right_pedding:.2f}', (100,150),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1.0, (255, 255, 255),5)
     return imageFrame
 
-
 cv_bridge_instance = CvBridge()
+Temperature = 0.0
+left_pedding = 0
+right_pedding = 0
+
 #@static_vars(cv_bridge_instance = CvBridgeError())
 def image_to_cv2(data):
     try:
@@ -155,14 +156,32 @@ def image_to_cv2(data):
 def callback(frame):
     frame = image_to_cv2(frame)
     frame = detect_color(frame)
-    frame = text_information(frame)
+    frame = text_information(frame, Temperature)
 
     cv2.imshow("On Screen Display", frame)
     cv2.waitKey(3)
 
+def updateDHT(data):
+    global Temperature
+    Temperature = data.data
+    rospy.logdebug(rospy.get_caller_id() + " Got Temperature: %r" % Temperature)
+
+def update_left(data):
+    global left_pedding
+    left_pedding = data.data
+    rospy.logdebug(rospy.get_caller_id() + " Got left distance: %r" % left_pedding)
+
+def update_right(data):
+    global right_pedding
+    right_pedding = data.data
+    rospy.logdebug(rospy.get_caller_id() + " Got right distance: %r" % right_pedding)
+
 def on_screen_display():
     rospy.init_node('on_screen_display', anonymous=True)
     rospy.Subscriber("/usb_cam/image_raw", Image, callback)
+    rospy.Subscriber('distance_l', Float32, update_left)
+    rospy.Subscriber('distance_r', Float32, update_right)
+    rospy.Subscriber('temperature', Float32, updateDHT)
     rospy.loginfo(rospy.get_caller_id() + " Setup Complete")
 
     rospy.spin()
