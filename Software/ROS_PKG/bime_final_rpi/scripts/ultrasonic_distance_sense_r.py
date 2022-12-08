@@ -8,7 +8,7 @@
 
 import rospy
 from std_msgs.msg import Float32
-#from std_msgs.msg import Float64
+from std_msgs.msg import String
 import RPi.GPIO as GPIO
 import time
 import signal
@@ -68,8 +68,8 @@ def ultrasonic_distance_sense():
 
     rospy.init_node('sonic_distance_r', anonymous = True)
 
-    pub_buzzer = rospy.Publisher('cmd_buzzer', Float32, queue_size = 1)
-#    pub_distance = rospy.Publisher('distance', Bool, queue_size = 1)
+    pub_buzzer = rospy.Publisher('cmd_buzzer', String, queue_size = 1)
+    pub_distance = rospy.Publisher('distance_r', Float32, queue_size = 1)
 
     sensor.setup()
     rate = rospy.Rate(2) # 2 Hz
@@ -81,6 +81,7 @@ def ultrasonic_distance_sense():
             rospy.loginfo(rospy.get_caller_id() + " Measured Distance = %.1f cm", distance)
             if distance < 10:
                 pub_buzzer.publish("E4")
+            pub_distance.publish(distance)
             rate.sleep()
         except TimeoutError:
             rospy.logerr(rospy.get_caller_id() + " Measured Error")
