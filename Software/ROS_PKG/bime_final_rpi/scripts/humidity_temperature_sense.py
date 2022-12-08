@@ -25,7 +25,7 @@ def humidity_temperature_sense():
             rospy.loginfo(rospy.get_caller_id() + " Measured Temperature = %.1f c", temperature_c)
             pub_temperature.publish(temperature_c)
         except RuntimeError:
-            rospy.loginfo(rospy.get_caller_id() + " Measured Error")
+            rospy.logerr(rospy.get_caller_id() + " Measured Error")
         except TypeError: # ignore type error in loginfo
             pass
         rate.sleep()

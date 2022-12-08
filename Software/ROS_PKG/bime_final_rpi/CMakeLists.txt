@@ -164,7 +164,9 @@ catkin_install_python(PROGRAMS
   scripts/ball_holder_control.py
   scripts/led_control.py
   scripts/buzzer_control.py
-  scripts/ultrasonic_distance_sense.py
+  #scripts/ultrasonic_distance_sense.py
+  scripts/ultrasonic_distance_sense_l.py
+  scripts/ultrasonic_distance_sense_r.py
   scripts/humidity_temperature_sense.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
