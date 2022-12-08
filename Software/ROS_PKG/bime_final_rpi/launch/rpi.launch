@@ -21,6 +21,9 @@
   <node pkg="bime_final_rpi" name="distance_l" type="ultrasonic_distance_sense_l.py" output="screen">
   </node>
 
+  <node pkg="bime_final_rpi" name="thermal_fan" type="thermal_fan_control.py" output="screen">
+  </node>
+
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
     <param name="video_device" value="/dev/video0" />
     <param name="image_width" value="640" />
