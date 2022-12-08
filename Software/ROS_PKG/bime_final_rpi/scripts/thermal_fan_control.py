@@ -6,10 +6,10 @@
 #
 # Distributed under terms of the MIT license.
 
-import rospy
-from std_msgs.msg import UInt16
 import RPi.GPIO as GPIO
+import rospy
 import time
+from std_msgs.msg import UInt16
 
 # GPIO Mode (Board / BCM)
 GPIO.setmode(GPIO.BOARD)
@@ -28,7 +28,7 @@ class ThermalFan:
     def setup(self):
         GPIO.setup(self.pin, GPIO.OUT)
         self.pwm = GPIO.PWM(self.pin, 50) # 50 Hz
-        self.pwm.start(70)
+        self.pwm.start(100)
 
     def rotate(self, pwm_value):
         pwm_value = min(pwm_value, 100)
@@ -40,7 +40,7 @@ thermal_fan = ThermalFan(PWM1)
 def callback(data):
     rospy.loginfo(rospy.get_caller_id() + ' Received CMD')
     thermal_fan.rotate(data.data)
- 
+
 def thermal_fan_control():
     rospy.init_node('thermal_fan')
 
@@ -58,8 +58,4 @@ def thermal_fan_control():
 
 if __name__ == '__main__':
     thermal_fan_control()
-
-
-#set GPIO direction (IN / OUT)
-GPIO.setup(PWM1, GPIO.OUT)
 

@@ -168,6 +168,7 @@ catkin_install_python(PROGRAMS
   scripts/ultrasonic_distance_sense_l.py
   scripts/ultrasonic_distance_sense_r.py
   scripts/humidity_temperature_sense.py
+  scripts/thermal_fan_control.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
