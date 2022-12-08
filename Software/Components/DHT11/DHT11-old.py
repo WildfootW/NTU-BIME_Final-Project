@@ -1,4 +1,8 @@
 import Adafruit_DHT
+
+# python3 -m pip install --user Adafruit_DHT
+# https://github.com/adafruit/Adafruit_Python_DHT
+
 sensor = Adafruit_DHT.DHT11
 pin = 19
 while True:
