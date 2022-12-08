@@ -13,9 +13,6 @@ import RPi.GPIO as GPIO
 # GPIO Mode (Board / BCM)
 GPIO.setmode(GPIO.BOARD)
 
-# Set GPIO Pins
-Buzzer_pin = 7
-
 class Buzzer:
     """A simple class for Buzzer"""
     def __init__(self, pin):
@@ -31,6 +28,7 @@ class Buzzer:
 
         GPIO.output(self.pin, GPIO.LOW)
 
+Buzzer_pin = 7
 buzzer = Buzzer(Buzzer_pin)
 
 def callback(data):
