@@ -112,15 +112,17 @@ class Buzzer:
     def setup(self):
         GPIO.setup(self.pin, GPIO.OUT)
         self.pwm = GPIO.PWM(self.pin, 440)
-        self.pwm.start(50)
+        self.pwm.start(0)
 
     def buzz(self, key):
+        self.pwm.ChangeDutyCycle(50)
+
         self.pwm.ChangeFrequency(key_freq[key])
         rospy.loginfo(rospy.get_caller_id() + ' Buzz Key: %r, Freq: %d', key, key_freq[key])
 
         rospy.sleep(0.2)
 
-        self.pwm.ChangeFrequency(50)
+        self.pwm.ChangeDutyCycle(0)
 
 Buzzer_pin = 7
 buzzer = Buzzer(Buzzer_pin)
