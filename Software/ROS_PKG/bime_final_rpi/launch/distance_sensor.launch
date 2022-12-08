@@ -1,0 +1,9 @@
+<launch>
+  <node pkg="bime_final_rpi" name="left_distance" type="ultrasonic_distance_sense.py" output="screen">
+    <param name="trigger_pin" value="40" />
+    <param name="echo_pin" value="38" />
+  </node>
+
+  <node pkg="bime_final_rpi" name="right_distance" type="ultrasonic_distance_sense.py" output="screen">
+  </node>
+</launch>
